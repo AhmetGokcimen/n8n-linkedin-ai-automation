@@ -1,21 +1,34 @@
 # LinkedIn AI Post Automation (n8n)
 
-Bu n8n workflow'u; belirlenen konularda yapay zeka (Google Gemini) kullanarak içerik üretir, buna uygun görsel oluşturur (Replicate) ve LinkedIn hesabınızda otomatik paylaşır.
+This n8n workflow fully automates the process of creating and publishing engaging content on LinkedIn. It utilizes Generative AI to write professional posts, generates relevant images, and handles the publishing process automatically.
 
-![Workflow Şeması](preview.png)
-## Özellikler
-- 🧠 **İçerik Üretimi:** Google Gemini ile trendlere uygun metin yazar.
-- 🎨 **Görsel Üretimi:** Metne uygun prompt oluşturup Replicate (Imagen) ile görsel çizer.
-- 🚀 **Otomatik Paylaşım:** LinkedIn API üzerinden paylaşır.
-- 💾 **Veritabanı:** Eski paylaşımları Supabase'de tutar (tekrara düşmemek için).
+![Workflow Diagram](preview.png)
+## 🚀 Features
 
-## Kurulum
-1. `n8n-linkedin-automation.json` dosyasını indirin.
-2. n8n panelinizde "Import from File" diyerek içeri aktarın.
-3. Credentials bölümünden kendi API anahtarlarınızı (Supabase, Replicate, Google PaLM, LinkedIn) girin.
+* **AI Content Generation:** Uses **Google Gemini** to write engaging, trend-aware LinkedIn posts based on defined topics.
+* **Dynamic Image Creation:** Generates a custom image prompt based on the post text and creates a visual using **Replicate (Imagen-4-fast)**.
+* **Automated Publishing:** Posts the text and image directly to your **LinkedIn** profile via API.
+* **History & Context:** Logs published posts to a **Supabase** database to maintain context and ensure future posts are sequential (e.g., "AI Insights #5").
 
-## Gereksinimler
-- n8n (Self-hosted veya Cloud)
-- Replicate Hesabı
-- Google AI Studio (Gemini) API Anahtarı
-- Supabase Veritabanı
+## 🛠️ Prerequisites
+
+To use this workflow, you need credentials for the following services:
+* **n8n** (Self-hosted or Cloud)
+* **Google Gemini (PaLM) API** (for text generation)
+* **Replicate API** (for image generation)
+* **Supabase** (for database/logging)
+* **LinkedIn API** (OAuth2 for publishing)
+
+## ⚙️ Setup & Usage
+
+1.  **Download:** Download the `n8n-linkedin-automation.json` file from this repository.
+2.  **Import:** Go to your n8n dashboard, click **"Add Workflow"** > **"Import from..."** and select the JSON file.
+3.  **Credentials:**
+    * Open the nodes with warning signs (red triangles).
+    * Create or select your own credentials for Google Gemini, Replicate, Supabase, and LinkedIn.
+4.  **Database:** Ensure you have a table in Supabase (e.g., `LinkedInPosts`) with columns matching the workflow logic (or adjust the node to match your table).
+5.  **Activate:** Toggle the workflow to **Active** to start the schedule.
+
+## 📄 License
+
+This project is open-source and available for personal or educational use.
