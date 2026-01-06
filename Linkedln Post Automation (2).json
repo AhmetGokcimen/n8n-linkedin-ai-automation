@@ -1,0 +1,664 @@
+{
+  "name": "Linkedln Post Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "tableId": "LinkedlnPosts",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "text",
+              "fieldValue": "={{ $('Text Generate').item.json.text }}"
+            },
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $('Title Generate').item.json.text }}"
+            },
+            {
+              "fieldId": "PostID",
+              "fieldValue": "={{ $json.urn }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        464,
+        0
+      ],
+      "id": "03c8a7e4-642c-4f41-b51a-1fa48b89b4a7",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "en1PPpJPl44Nl9L9",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "prompt",
+              "value": "=You're an automation tool that automatically shares posts for LinkedIn. These are the titles of content you've previously shared \"{{ $json.titles }}\". You increment the numbers in these titles by one for each new post, meaning you increment the most recent number by one in the title. Your general topic is the AI ​​sector, covering current events such as innovations, evolving business lines, and emerging opportunities, also you can mantion about new AI apps and thecnologies. You utilize statistics and official data to do this. Write an engaging, easy-to-read content that will genuinely interest people, not just write it as a formality, LinkedIn-friendly text of approximately 1500-2000 characters, do not make it longer then 2000 characters.Add at least seven relevant tags below. Don't forget to start each post with \"AI Insights #(number of posts): (title).\" Don't include the date of publication or anything else; simply provide the output to be shared, nothing more."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -2144,
+        16
+      ],
+      "id": "e259ba1d-27b8-41ad-8935-476cd26ba5a3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1968,
+        192
+      ],
+      "id": "38ae9356-c538-4b22-8bbf-8792ab72d32e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fjrSNxio5m22Obna",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const promptWithNewlines = $input.first().json.text; // Girişteki prompt'u al\nconst cleanedPrompt = promptWithNewlines\n  .replace(/(\\r\\n|\\n|\\r)/gm, ' ') // Yeni satırları boşlukla değiştir\n  .replace(/\\*\\*/g, '') // ** işaretlerini kaldır (bold)\n  .replace(/---/g, '') // --- işaretlerini kaldır\n  .replace(/\\s+/g, ' ') // Birden fazla boşluğu tek boşluk yap\n  .trim() // Baş ve sondaki boşlukları sil\n  .replace(/\"/g, '\\\\\"'); // Tırnakları escape et (JSON uyumluluğu)\nreturn [{ json: { cleaned_prompt: cleanedPrompt } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -816,
+        16
+      ],
+      "id": "9aaa764e-acee-43c3-89c2-00dc70a5ae19",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "amount": 7
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        16
+      ],
+      "id": "27827865-340a-4ed1-98cd-48fb1ef2298a",
+      "name": "Wait3",
+      "webhookId": "c4938174-1d28-41c9-bcec-4c326b07ed93"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.replicate.com/v1/predictions/{{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -352,
+        16
+      ],
+      "id": "5a96f210-bb99-4947-83c2-1e8d0f383dfe",
+      "name": "HTTP Request3",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "20ejyaHgV6uavcT1",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "846c39e1-ab0a-4fd9-ad47-0c6b0a925308",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "succeeded",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -208,
+        16
+      ],
+      "id": "68690f45-24a3-492d-a68a-d6df9665daa4",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 11,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2624,
+        16
+      ],
+      "id": "61eb67e6-10dc-449f-b866-d20942e9acbf",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "prompt",
+              "value": "=This text was generated by AI to be shared on LinkedIn \"{{ $('Text Generate').item.json.text }}\". I need an AI-generated image to share this text. Examine the text's topic and create an AI prompt to create an image that can be shared with the text in the post. Addendum: Instead of meaningless and flat image prompts, write prompts that generate relevant images. Users should be able to understand the topic by just looking at the image. Do not provide any output other than the prompt requested."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Prompt1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -1312,
+        16
+      ],
+      "id": "b258b42d-801c-4b8b-8f8c-4c951cc22903"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        192
+      ],
+      "id": "78600133-aa2f-4f97-88b2-af1da00116dd",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fjrSNxio5m22Obna",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1648,
+        192
+      ],
+      "id": "359a9363-83dc-4004-9238-baddedf58020",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fjrSNxio5m22Obna",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Tüm item'lardan belirli sütunu topla ve virgülle birleştir\nconst columnName = 'title'; // Buraya sütun adını yaz\nconst values = $input.all().map(item => item.json[columnName]).filter(val => val !== null && val !== undefined);\nconst combined = values.join('; '); // Virgül ve boşlukla birleştir, istersen join(' - ') gibi değiştir\n\n// Tek bir item olarak döndür, değişkeni ata\nreturn [{ json: { titles: combined } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2304,
+        16
+      ],
+      "id": "cd133afd-8dbf-47c6-a2df-f9a64284781c",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.replicate.com/v1/predictions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n  \"version\": \"google/imagen-4-fast\",\n  \"input\": {\n    \"prompt\": \"{{ $json.cleaned_prompt }}\",\n    \"negative_prompt\": \"cartoon, anime, illustration, drawing, 2d, sketch, low quality, blurry, deformed, ugly, animated, cel-shaded\",\n    \"width\": 1024,\n    \"height\": 1024,\n    \"num_outputs\": 1,\n    \"num_inference_steps\": 28,\n    \"guidance_scale\": 9.0,\n    \"seed\": 42,\n    \"output_format\": \"png\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -640,
+        16
+      ],
+      "id": "bb4f928e-9f61-4600-89c5-c040c64eb4fe",
+      "name": "imagen-4-fast",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "20ejyaHgV6uavcT1",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Edit Fields').item.json.GeciciOutput }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        144,
+        0
+      ],
+      "id": "f3b6621c-9e96-44d8-85c8-551d6e56ed6f",
+      "name": "Image Download"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "36aa77db-e18e-4300-8e43-24813aa0f4d1",
+              "name": "GeciciOutput",
+              "value": "={{ $('HTTP Request3').item.json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3cacaa64-5168-4202-91cc-0306039bc129",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "LinkedlnPosts",
+        "filterType": "none"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -2464,
+        16
+      ],
+      "id": "ad3c2fc8-81b7-4fa8-8308-d6f09060dcc6",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "en1PPpJPl44Nl9L9",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -1968,
+        16
+      ],
+      "id": "50d283dc-6fef-4027-954f-cd3b286800a1",
+      "name": "Text Generate"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=This text was prepared by an artificial intelligence \"{{ $json.text }}\", I want you to separate the title of this text and give it as output, the title will look like this\"{{ $('Code in JavaScript1').item.json.titles }}\". Do not give any output other than the title",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -1648,
+        16
+      ],
+      "id": "00719ef3-1858-4512-bf8a-eba2354e071b",
+      "name": "Title Generate"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -1120,
+        16
+      ],
+      "id": "e4d369ca-5f7a-4dbb-a476-672ea1950fdf",
+      "name": "Image Prompt Generate"
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Text Generate').item.json.text }}",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        304,
+        0
+      ],
+      "id": "ebe350d2-5353-4c8d-bf3e-1c6f05095d54",
+      "name": "Create a post1",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "55qaBSLwFPZAG3Sf",
+          "name": "LinkedIn account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set Prompt": {
+      "main": [
+        [
+          {
+            "node": "Text Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Generate",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image Prompt Generate",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Prompt1": {
+      "main": [
+        [
+          {
+            "node": "Image Prompt Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "imagen-4-fast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Title Generate",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Set Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "imagen-4-fast": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Download": {
+      "main": [
+        [
+          {
+            "node": "Create a post1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Image Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Generate": {
+      "main": [
+        [
+          {
+            "node": "Title Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Title Generate": {
+      "main": [
+        [
+          {
+            "node": "Set Prompt1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Prompt Generate": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a post1": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "58be384b-4a81-482d-9512-9af9578c793a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1db8737709168e8a733bf5971e4eae16d7438df33fe33657490c4b5b0b7676a3"
+  },
+  "id": "EvXykuuGqjAFmQBd",
+  "tags": []
+}
