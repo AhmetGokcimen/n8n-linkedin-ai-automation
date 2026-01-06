@@ -2,7 +2,7 @@
 
 This n8n workflow fully automates the process of creating and publishing engaging content on LinkedIn. It utilizes Generative AI to write professional posts, generates relevant images, and handles the publishing process automatically.
 
-![Workflow Diagram](preview.png)
+![Workflow Diagram](Screenshot.png)
 ## 🚀 Features
 
 * **AI Content Generation:** Uses **Google Gemini** to write engaging, trend-aware LinkedIn posts based on defined topics.
